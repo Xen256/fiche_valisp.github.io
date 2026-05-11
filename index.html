@@ -49,13 +49,13 @@
         <p>Comme nos blocs de métadonnées ne sont que des suites de 32 bits, on a des méthodes très spécifiques pour retrouver les différentes parties de notre bloc :</p>
 
         <h4>L'indice de la région suivante</h4>
-        <p><code>suivant = bloc & (1 << 7) - 1</code> (on compare le bloc à une suite de 15 '1')</p>
+        <p><code>suivant = bloc & ((1 << 7) - 1) </code> (on compare le bloc à une suite de 15 '1')</p>
 
         <h4>Le bit de disponibilité</h4>
         <p><code>libre = (bloc >> 15) & 1</code> (on décale vers la droite le bloc de 15 bits et on isole le premier bit avec & 1)</p>
 
         <h4>L'indice de la région précédente</h4>
-        <p><code>precedent = (bloc >> 16) & (1 << 7) - 1</code> (on décale vers la droite le bloc de 16 bits et on compare ça à une suite de 15 '1')</p>
+        <p><code>precedent = (bloc >> 16) & ((1 << 7) - 1)</code> (on décale vers la droite le bloc de 16 bits et on compare ça à une suite de 15 '1')</p>
 
         <h4>Le bit RM</h4>
         <p><code>RM = (bloc >> 31) & 1</code> (on décale vers la droite le bloc de 31 bits et on isole le premier bit avec & 1)</p>
