@@ -63,6 +63,7 @@
         On s'arrête quand <code>b = suivant(b)</code> car cette condition est respectée UNIQUEMENT par le dernier bloc de la mémoire.</p>
 
         <h3>Malloc</h3>
+        <p><a href="https://youtu.be/vodIl3G9dZ8">vidéo explicative (le son est pas très fort mb)</a></p>
         <p>On parcourt la mémoire bloc par bloc jusqu'à trouver une région dont la taille est plus grande ou égale à ce que l'on cherche :<br>
         On a ici deux cas :</p>
 
@@ -78,6 +79,7 @@
         </ul>
 
         <h3>Free</h3>
+        <p><a href="https://youtu.be/Eg6ExTlYb3c">vidéo explicative (le son est pas très fort mb)</a></p>
         <p>On veut libérer une région :</p>
         <ul>
             <li>On check le bloc de métadonnées.</li>
@@ -204,7 +206,7 @@ x->data = 1;</code></pre>
         On check tous les objets de l'environnement.<br>
         Si aucun objet ne pointe vers l'objet actuel, on l'enlève.</p>
 
-        <h4>L'algorithme (Mark & Sweep) :</h4>
+        <h4>L'algorithme :</h4>
         <ol>
             <li><strong>Phase de Marquage (Mark) :</strong>
                 <ul>
@@ -215,9 +217,9 @@ x->data = 1;</code></pre>
                     <li>Si l'objet est déjà marqué, on s'arrête (pour éviter les boucles infinies).</li>
                 </ul>
             </li>
-            <li><strong>Phase de Nettoyage (Sweep) :</strong>
+            <li><strong>Phase de Nettoyage :</strong>
                 <ul>
-                    <li>Ensuite, on parcourt tous les blocs physiques de la mémoire, du premier au dernier.</li>
+                    <li>Ensuite, on parcourt tous les blocs de la mémoire, du premier au dernier.</li>
                     <li>Si un bloc est marqué, on le garde et on passe son bit RM à 0 (pour le prochain cycle).</li>
                     <li>Si un bloc n'est pas marqué, on le libère en mettant le bit de disponibilité à libre et on fusionne entre eux les blocs libres, comme à l'allocation.</li>
                 </ul>
