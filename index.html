@@ -57,6 +57,13 @@
         <h4>L'indice de la région précédente</h4>
         <p><code>precedent = (bloc >> 16) & 0x7FFF</code> (on décale vers la droite le bloc de 16 bits et on compare ça à une suite de 15 '1')</p>
 
+        <h4>Le bit RM</h4>
+        <p><code>RM = (bloc >> 31) & 1</code> (on décale vers la droite le bloc de 31 bits et on isole le premier bit avec & 1)</p>
+
+        <h4>Modifier un bloc</h4>
+        <p>Pour modifier un bloc, on va simplement "l'écraser" en en créant un nouveau à son indice avec les nouvelles spécificités</p>
+        <p><code>nouveau = (rm<<31) | (precedant<<16) | (libre<<15) | (suivant) </code></p>
+
         <h3>Parcours de la mémoire</h3>
         <p>On parcourt la mémoire bloc par bloc.<br>
         On commence avec <code>b = 0</code> puis, à chaque itération, on remplace <code>b</code> par le bloc suivant.<br>
