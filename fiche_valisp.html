@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiche de Révision : Valisp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Fiche de Révision : Valisp</h1>
+        <h2>CM 1</h2>
+        <p><strong>Mémoire :</strong> 2<sup>15</sup> blocs</p>
+        <p>Elle est composée de régions qui peuvent être libres ou occupées.<br>
+        Une région débute par un bloc de métadonnée qui est construit de la manière suivante :</p>
+        <table class="bit-table">
+            <thead>
+                <tr>
+                    <th>0</th>
+                    <th>000000000000000</th>
+                    <th>0</th>
+                    <th>000000000000000</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>RM</td>
+                    <td>Adresse précédent</td>
+                    <td>Libre</td>
+                    <td>Adresse suivant</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Une mémoire "vide" ressemble à cela : </p>
+        <img src="empty_memory.png">
+
+
+        <p>Où le premier bloc et le dernier bloc sont des blocs de métadonnées.<br>
+        <strong>Précision sur le dernier bloc :</strong> il est le seul bloc où son suivant est lui-même.</p>
+
+        <p>Une fois que notre mémoire est remplie de régions, on veut absolument éviter d'avoir deux régions libres collées. Il est impératif de les fusionner au risque de "fragmenter" la mémoire.</p>
+
+        <ul>
+            <li><strong>Taille d'une région</strong> = indice de la région suivante - notre région</li>
+            <li><strong>Taille utile d'une région</strong> = taille de la région - 1 <em>(car on enlève le bloc de métadonnées)</em></li>
+        </ul>
+
+        <h3>Manipulation des bits</h3>
+        <p>Comme nos blocs de métadonnées ne sont que des suites de 32 bits, on a des méthodes très spécifiques pour retrouver les différentes parties de notre bloc :</p>
+
+        <h4>L'indice de la région suivante</h4>
+        <p><code>suivant = bloc & 0x7FFF</code> (on compare le bloc à une suite de 15 '1')</p>
+
+        <h4>Le bit de disponibilité</h4>
+        <p><code>libre = (bloc >> 15) & 1</code> (on décale vers la droite le bloc de 15 bits et on isole le premier bit avec & 1)</p>
+
+        <h4>L'indice de la région précédente</h4>
+        <p><code>precedent = (bloc >> 16) & 0x7FFF</code> (on décale vers la droite le bloc de 16 bits et on compare ça à une suite de 15 '1')</p>
+
+        <h3>Parcours de la mémoire</h3>
+        <p>On parcourt la mémoire bloc par bloc.<br>
+        On commence avec <code>b = 0</code> puis, à chaque itération, on remplace <code>b</code> par le bloc suivant.<br>
+        On s'arrête quand <code>b = suivant(b)</code> car cette condition est respectée UNIQUEMENT par le dernier bloc de la mémoire.</p>
+
+        <h3>Malloc</h3>
+        <p>On parcourt la mémoire bloc par bloc jusqu'à trouver une région dont la taille est plus grande ou égale à ce que l'on cherche :<br>
+        On a ici deux cas :</p>
+
+        <h4>Premier cas</h4>
+        <p>Si notre région fait exactement la taille de ce dont on a besoin, on alloue juste la région en modifiant le bit de disponibilité dans le bloc de métadonnées.</p>
+
+        <h4>Deuxième cas</h4>
+        <p>Si notre région est plus grande, on va devoir "tailler" dedans.</p>
+        <ul>
+            <li>On va d'abord allouer la région (même méthode qu'au-dessus).</li>
+            <li>Ensuite, on va créer un nouveau bloc pour combler le vide (un bouchon).</li>
+            <li>Enfin, on modifie le <em>suivant</em> de notre région et du nouveau bloc, ainsi que le <em>précédent</em> du nouveau bloc et du bloc suivant du nouveau bloc.</li>
+        </ul>
+
+        <h3>Free</h3>
+        <p>On veut libérer une région :</p>
+        <ul>
+            <li>On check le bloc de métadonnées.</li>
+            <li>On marque le bloc comme libre en modifiant son bit d'occupation.</li>
+            <li>On check si la région suivante est libre. Si elle l'est, on fusionne les deux.</li>
+            <li>On check si la région précédente est libre. Si elle l'est, on fusionne les deux.</li>
+        </ul>
+
+        <h2>CM 2</h2>
+
+        <h3>Pour les types métas :</h3>
+
+        <h4>Cons</h4>
+        <p>Le plus important, c'est un couple de deux données :</p>
+        <ul>
+            <li>Le <strong>"car"</strong> -> le premier élément</li>
+            <li>Le <strong>"cdr"</strong> -> le reste</li>
+        </ul>
+        <p>Exemple : <code>f = (11 12)</code>, <code>car(f) = 11</code>, <code>cdr(f) = (12)</code></p>
+
+        <h4>Le nil</h4>
+        <p>C'est, en même temps : <code>False</code>, <code>None</code>, <code>[]</code>, <code>Null</code>.<br>
+        Il représente le "vide".</p>
+
+        <h4>Les listes</h4>
+        <p>Classique : <code>(1 2 3 4 5)</code><br>
+        Ce sont des listes chaînées en lisp.<br>
+        <em>Différence entre cons et liste :</em> le cons est la cellule de la liste.</p>
+
+        <h3>Affichage de liste</h3>
+        <ul>
+            <li>On affiche <code>'('</code></li>
+            <li>On affiche le <code>car</code> de la liste</li>
+            <li>On check le <code>cdr</code> :
+                <ul>
+                    <li>S'il est <code>nil</code>, on n'affiche rien.</li>
+                    <li>Si c'est un cons, on affiche un espace et on récurse sur le cons.</li>
+                    <li>Sinon, on affiche un <code>'.'</code> suivi du <code>cdr</code>.</li>
+                </ul>
+            </li>
+            <li>On affiche <code>')'</code></li>
+        </ul>
+        <pre><code>affiche( (cons 1 2) ) -> (1 . 2)
+affiche( (cons 1 (cons 2 nil)) ) -> (1 2)</code></pre>
+
+        <h4>Différence entre (1 . 2) et (1 2) :</h4>
+        <p><code>(1 . 2)</code> est UNE cellule, c'est un cons ; "cons de 1 et de 2"<br>
+        <code>(1 2)</code> est une liste de 2 cons imbriqués ; "cons de 1 et de cons de 2 et de nil"</p>
+
+        <h3>S-expressions :</h3>
+        <p>Tout type en lisp est construit à partir de S-expressions (notées <code>sexpr</code>).<br>
+        Exemple d'une sexpr : <code>(+ 1 2)</code></p>
+
+        <p>La structure d'une sexpr en C est assez complexe car elle présente plusieurs niveaux d'abstractions :</p>
+        <ol>
+            <li>On commence par créer un enum <code>valisp_types</code> de ce style : <code>{entier, chaine, symbole, cons, prim, spec}</code></li>
+            <li>On crée ensuite une union <code>valisp_data</code> qui contient les mêmes types de données que dans l'enum.</li>
+            <li>On met ensuite ces deux objets dans une structure <code>valisp_object</code> qui contient un champ <code>type</code> et un champ <code>data</code>.</li>
+            <li>Enfin, on notera <code>sexpr</code> un pointeur vers la structure <code>valisp_object</code>.</li>
+        </ol>
+
+        <p>Avec cela, on peut créer : des entiers, des chaînes de caractères, des symboles (+, -, *, etc.), des cons, des primitives et des formes spéciales.</p>
+
+        <p>Exemple : Voici l'entier <code>x = 1</code> noté comme une sexpr (en C) :</p>
+        <pre><code>sexpr x;
+x->type = entier;
+x->data = 1;</code></pre>
+
+        <p>L'algorithme pour créer une sexpr est quasiment toujours le suivant :</p>
+        <ul>
+            <li>J'alloue en premier la mémoire pour stocker <code>struct valisp_object</code></li>
+            <li>J'initialise le type</li>
+            <li>J'initialise la donnée</li>
+        </ul>
+
+        <h4>Primitives et Spéciales</h4>
+        <p>Ces types méritent une partie à part car ils sont assez différents des autres.<br>
+        En informatique, on appelle "primitive" dans un langage interprété, une fonction qui est écrite dans le langage constructeur du langage interprété. Typiquement, on appellera primitive la fonction <code>add</code>, la fonction <code>sub</code>, etc.<br>
+        Ce sont des fonctions qui sont intrinsèques au langage, elles ne sont pas définies DANS le langage mais plutôt en MÊME temps.</p>
+        <p>Les formes spéciales sont aussi des primitives mais ont la particularité de ne pas évaluer ce qu'il y a dans leurs arguments, ce sera utile plus tard dans la fiche.</p>
+
+        <h4>Gestion des chaînes et symboles</h4>
+        <p><strong>Problème :</strong> les chaînes et les symboles sont en général définis sur la pile.<br>
+        <strong>Solution :</strong> On les copie sur le tas (notre mémoire dynamique Valisp) pour pouvoir les utiliser avec valisp.<br>
+        Il faut donc faire une fonction qui prend le symbole/chaîne, alloue de la mémoire et stocke cette chaîne/symbole dans la mémoire valisp.</p>
+
+        <h3>Les erreurs</h3>
+        <p>Dans le projet on a deux types d'erreurs :</p>
+        <ul>
+            <li><strong>Les erreurs fatales :</strong> celles qui font crash le code (celui qu'on a fait en C, on est responsable de ces erreurs).</li>
+            <li><strong>Les erreurs valisp :</strong> les erreurs de l'utilisateur qui code en valisp (ils sont responsables de ces erreurs, notre job est juste de faire en sorte que ça ne fasse pas crash le REPL).</li>
+        </ul>
+        <p>Pour les erreurs valisp, on utilisera un type nommé <code>jmp_buf</code>.<br>
+        C'est simplement un type permettant de sauvegarder l'état du programme avant d'afficher l'erreur et de continuer l'exécution.<br>
+        Il est normalement très dangereux à utiliser car il massacre la pile d'exécution ainsi que le tas. Or, tout notre programme tient dans la mémoire dynamique (notre grand tableau statique/dynamique Valisp), le ramasse-miettes s'occupera de nettoyer.</p>
+
+        <h2>CM 3</h2>
+
+        <h3>Environnement</h3>
+        <p>L'environnement est une liste chaînée de cons de ce style :<br>
+        <code>(nom . valeur)</code><br>
+        Où <code>car(couple)</code> nous donne le nom et <code>cdr(couple)</code> nous donne la valeur.</p>
+        <p><code>car(environnement)</code> nous donne le premier cons, <code>cdr</code> nous donne le reste.</p>
+
+        <h4>Définition d'une variable</h4>
+        <p>Admettons que je veuille définir une variable, on a deux cas possibles :</p>
+        <ul>
+            <li><strong>La variable existe :</strong> On trouve le couple correspondant et on modifie simplement le <code>cdr</code>.</li>
+            <li><strong>La variable n'existe pas :</strong> On crée le couple <code>(nom . valeur)</code> et on l'ajoute à la fin de la liste chaînée.</li>
+        </ul>
+
+        <h4>Parcours d'un environnement</h4>
+        <p>Le parcours d'un environnement se fait de la manière suivante :<br>
+        On parcourt d'abord l'environnement de manière générale avec une boucle for de la manière suivante :</p>
+        <pre><code>for(liste=env; liste!=NULL; liste=cdr(liste))</code></pre>
+        <p>Ça va nous permettre de passer de couple en couple.<br>
+        Pour accéder aux couples dans l'environnement et les modifier, on va mettre dans notre boucle for :<br>
+        <code>liaison = car(liste)</code><br>
+        Ainsi, <code>liaison</code> sera le couple en question.</p>
+        <p>De ce fait, on parcourt tout l'environnement AINSI que les couples.</p>
+
+        <h3>Ramasse-miettes (Garbage Collector)</h3>
+        <p>Concrètement, le ramasse-miettes marche de la manière suivante :<br>
+        On check tous les objets de l'environnement.<br>
+        Si aucun objet ne pointe vers l'objet actuel, on l'enlève.</p>
+
+        <h4>L'algorithme (Mark & Sweep) :</h4>
+        <ol>
+            <li><strong>Phase de Marquage (Mark) :</strong>
+                <ul>
+                    <li>On parcourt récursivement l'environnement (notre racine).</li>
+                    <li>Pour chaque objet (couple, etc.), on marque son bloc de métadonnée (son bit RM passe à 1).</li>
+                    <li>Si l'objet en question est un cons, on marque le bloc et on récurse sur son <code>car</code> ET son <code>cdr</code>.</li>
+                    <li>Si l'objet est une chaîne ou un symbole, on marque le bloc de l'objet et le bloc de la chaîne de caractères associée.</li>
+                    <li>Si l'objet est déjà marqué, on s'arrête (pour éviter les boucles infinies).</li>
+                </ul>
+            </li>
+            <li><strong>Phase de Nettoyage (Sweep) :</strong>
+                <ul>
+                    <li>Ensuite, on parcourt tous les blocs physiques de la mémoire, du premier au dernier.</li>
+                    <li>Si un bloc est marqué, on le garde et on passe son bit RM à 0 (pour le prochain cycle).</li>
+                    <li>Si un bloc n'est pas marqué, on le libère en mettant le bit de disponibilité à libre et on fusionne entre eux les blocs libres, comme à l'allocation.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>Formes spéciales et primitives</h3>
+        <p>La différence entre formes spéciales et primitives tient dans cette règle d'évaluation standard :</p>
+        <p>Pour évaluer <code>prim(procédure arg 1 .. arg n)</code> :<br>
+        On évalue d'abord chacun des arguments PUIS on applique la procédure.</p>
+        <p><strong>Problème :</strong> Si on fait <code>(defvar x 3)</code> (la fonction qui définit une variable), on évalue <code>x</code> alors qu'il n'existe pas encore !<br>
+        C'est pour ça qu'on a inventé les <strong>formes spéciales</strong> : elles ne pré-évaluent pas leurs arguments (l'évaluation est gérée manuellement par la fonction C).</p>
+
+        <h3>Routine du main et le REPL</h3>
+        <p>La fonction <code>main</code> qui est le point d'entrée de tout notre programme, marche de la manière suivante :</p>
+        <ol>
+            <li>Elle crée d'abord la mémoire.</li>
+            <li>Elle crée ensuite l'environnement en initialisant le cons <code>(t . t)</code> (t étant égal à TRUE).</li>
+            <li>Elle charge enfin les primitives et les formes spéciales dans l'environnement.</li>
+        </ol>
+
+        <p>Le <strong>REPL</strong> (Read-Eval-Print Loop) quant à lui est l'interface interactive, c'est une simple boucle <code>while</code> qui évalue ce qu'on envoie :</p>
+        <ul>
+            <li><strong>Read :</strong> Il lit le texte et le transforme en sexpr.</li>
+            <li><strong>Eval :</strong> Il interprète la sexpr.</li>
+            <li><strong>Print :</strong> Il affiche le résultat.</li>
+            <li><strong>Loop :</strong> Il fait ça en boucle.</li>
+        </ul>
+    </div>
+</body>
+</html>

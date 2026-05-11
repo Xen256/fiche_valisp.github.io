@@ -1,0 +1,96 @@
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #3c3836; /* Gruvbox fg1 (dark1) */
+    background-color: #ebdbb2; /* Gruvbox bg1 */
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fbf1c7; /* Gruvbox bg0 */
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+h1 {
+    color: #8f3f71; /* Gruvbox faded_purple */
+    border-bottom: 3px solid #8f3f71;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+h2 {
+    color: #076678; /* Gruvbox faded_blue */
+    border-bottom: 2px solid #d5c4a1; /* Gruvbox bg2 */
+    padding-bottom: 5px;
+    margin-top: 40px;
+}
+
+h3 {
+    color: #79740e; /* Gruvbox faded_green */
+    margin-top: 30px;
+}
+
+h4 {
+    color: #af3a03; /* Gruvbox faded_orange */
+    margin-top: 20px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+code {
+    background-color: #f2e5bc; /* Gruvbox bg0_soft */
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #9d0006; /* Gruvbox faded_red */
+    border: 1px solid #d5c4a1; /* Gruvbox bg2 */
+}
+
+pre {
+    background-color: #f2e5bc; /* Gruvbox bg0_soft */
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+    border-left: 4px solid #076678; /* Gruvbox faded_blue */
+}
+
+pre code {
+    border: none;
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
+ul, ol {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+.bit-table {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    text-align: center;
+    font-family: monospace;
+    background-color: #fbf1c7;
+    color: #3c3836;
+    margin: 20px auto;
+}
+.bit-table th, .bit-table td {
+    border: 2px solid #3c3836;
+    padding: 12px;
+}
+.bit-table th {
+    font-weight: bold;
+    font-size: 1.1em;
+}
